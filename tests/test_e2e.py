@@ -51,3 +51,9 @@ def test_rule_version_is_part_of_batch_identity(monkeypatch):
     monkeypatch.setattr(manifest,'RULE_VERSION','future-rules')
     second=manifest.make('same content')
     assert first['sha256']==second['sha256'] and first['run_id']!=second['run_id']
+def test_narrowing_visible_in_page_and_evidence(client,narrowed_csv):
+    run=client.post('/api/run',json={'csv':narrowed_csv}).get_json();ident=run['manifest']['run_id']
+    page=client.get('/work/5?run_id='+ident).data.decode()
+    evidence=client.get('/api/evidence.csv?run_id='+ident).data.decode('utf-8-sig')
+    assert '收窄' in page and '收窄级' in evidence and 'OUT_OF_COVERAGE' in evidence
+    assert '0~8' in evidence and '0~10' in evidence

@@ -28,6 +28,23 @@ def trace(cert,certs):
         if child and not day(r['valid_from'])<=day(child['valid_from'])<day(r['valid_to']):return {'valid':False,'code':'REFERENCE_EXPIRED','path':path}
         child=r;current=r['parent']
     return {'valid':True,'code':'TRACEABLE','path':path}
+def coverage(path,certs):
+    # Effective coverage is the intersection of ranges along the chain; each
+    # ancestor that clips the running interval is recorded as a narrowing level.
+    low=high=None;narrowed=[]
+    for key in path:
+        r=certs.get(key)
+        if r is None:return {'known':False,'low':None,'high':None,'empty':False,'narrowed_by':narrowed}
+        lo,hi=number(r['min_v']),number(r['max_v'])
+        if low is None:low,high=lo,hi;continue
+        clipped=(max(low,lo),min(high,hi))
+        if clipped!=(low,high):narrowed.append(key)
+        low,high=clipped
+    return {'known':True,'low':low,'high':high,'empty':low>high,'narrowed_by':narrowed}
+def coverage_label(cov):
+    if not cov['known']:return '未知'
+    if cov['empty']:return '无覆盖'
+    return str(cov['low'])+'~'+str(cov['high'])
 def descendants(start,certs):
     reached={start};todo=[start]
     while todo:

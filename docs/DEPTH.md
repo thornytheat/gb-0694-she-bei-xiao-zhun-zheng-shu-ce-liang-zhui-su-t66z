@@ -2,7 +2,7 @@
 
 - 规模：中型
 - 使用者与工作流：检验机构质量员，合并仪器使用与校准证书，裁决测量是否在有效可追溯链内。
-- 核心规则：证书有效期与量程双约束；参考标准也须在校准时有效，证书撤销向下游传播并检测环。
+- 核心规则：证书有效期与量程双约束；参考标准也须在校准时有效，证书撤销向下游传播并检测环；上级量程收窄时有效覆盖按链交集重算，仅拒用超出覆盖的测量。
 
 ## 功能模块
 
@@ -28,6 +28,7 @@
 | TRAP-22 | 设备别名 | 静默覆盖或误计 | 显式裁决并保留证据 | `app/modules/m2_identity/rules.py` | `tests/test_m2.py::test_alias_order_independent` |
 | TRAP-23 | 失效日边界 | 静默覆盖或误计 | 显式裁决并保留证据 | `app/modules/m3_validity/rules.py` | `tests/test_m3.py::test_expiry_endpoint` |
 | TRAP-25 | 多证书重叠 | 静默覆盖或误计 | 显式裁决并保留证据 | `app/modules/m3_validity/rules.py` | `tests/test_m3.py::test_overlapping_certificates` |
+| TRAP-26 | 上级量程收窄 | 只看日期判可追溯，或整证作废丢失覆盖内数据 | 链上量程求交得有效覆盖，超覆盖测量拒用并标注收窄级 | `app/modules/m5_trace/rules.py` | `tests/test_m5.py::test_chain_narrows_at_superior` |
 
 ## 对账规则
 
